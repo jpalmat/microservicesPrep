@@ -1,7 +1,5 @@
 package com.example.demo.controller;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,7 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.example.demo.model.CatalogItem;
 import com.example.demo.model.Movie;
-import com.example.demo.model.Rating;
+import com.example.demo.model.UserRating;
 
 @RestController
 public class MovieCatalogController {
@@ -25,10 +23,10 @@ public class MovieCatalogController {
 	@GetMapping("/catalog/{userId}")
 	public List<CatalogItem> getCatalog(@PathVariable("userId") String userId){
 		
-		List<Rating> ratings = Arrays.asList(new Rating("1234", 4),
-				new Rating("5678", 3));
+		UserRating userRating = restTemplate.getForObject("http://localhost:8083/ratingdata/users/"+userId, UserRating.class);
 		
-		return ratings.stream().map(rating -> {
+		return userRating.getUserRatings().stream().map(rating -> {
+			//for each movie Id, call movie info service and get details
 			Movie movie = restTemplate.getForObject("http://localhost:8082/movie/"+rating.getMovieId(), Movie.class);
 			/*
 			 Movie movie = webClient.buil()
@@ -38,7 +36,7 @@ public class MovieCatalogController {
 			 .bodyToMono() mono is like a promise
 			 .block
 			 */
-			
+			//put the all together
 			return new CatalogItem(movie.getName(), "as", rating.getRating());
 			}).collect(Collectors.toList());
 	}
