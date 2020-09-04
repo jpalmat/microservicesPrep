@@ -23,11 +23,11 @@ public class MovieCatalogController {
 	@GetMapping("/catalog/{userId}")
 	public List<CatalogItem> getCatalog(@PathVariable("userId") String userId){
 		
-		UserRating userRating = restTemplate.getForObject("http://localhost:8083/ratingdata/users/"+userId, UserRating.class);
+		UserRating userRating = restTemplate.getForObject("http://RATING-DATA-SERVICE/ratingdata/users/"+userId, UserRating.class);
 		
 		return userRating.getUserRatings().stream().map(rating -> {
 			//for each movie Id, call movie info service and get details
-			Movie movie = restTemplate.getForObject("http://localhost:8082/movie/"+rating.getMovieId(), Movie.class);
+			Movie movie = restTemplate.getForObject("http://MOVIE-INFO-SERVICE/movie/"+rating.getMovieId(), Movie.class);
 			/*
 			 Movie movie = webClient.buil()
 			 .get()
