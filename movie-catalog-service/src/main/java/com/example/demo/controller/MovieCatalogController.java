@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 import com.example.demo.model.CatalogItem;
 import com.example.demo.model.Movie;
 import com.example.demo.model.UserRating;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 @RestController
 public class MovieCatalogController {
@@ -21,6 +23,7 @@ public class MovieCatalogController {
 	private RestTemplate restTemplate;
 	
 	@GetMapping("/catalog/{userId}")
+	@HystrixCommand(fallbackMethod = "getFallBackMathod")
 	public List<CatalogItem> getCatalog(@PathVariable("userId") String userId){
 		
 		UserRating userRating = restTemplate.getForObject("http://RATING-DATA-SERVICE/ratingdata/users/"+userId, UserRating.class);
@@ -41,4 +44,8 @@ public class MovieCatalogController {
 			}).collect(Collectors.toList());
 	}
 
+	public List<CatalogItem> getFallBackMathod(@PathVariable("userId") String userId){
+		
+		return Arrays.asList(new CatalogItem("No movie", "", 0));
+	}
 }
